@@ -1,0 +1,12 @@
+bin/
+obj/
+dist/
+node_modules/
+*.exe
+*.pdb
+*.user
+*.suo
+.vs/
+packages/
+.DS_Store
+Thumbs.db
