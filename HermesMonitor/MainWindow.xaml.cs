@@ -174,6 +174,23 @@ public partial class MainWindow : Window
             }
         }
 
+        // CRITICAL: Also scan current directory and parent directories for .claude/mcp.json
+        try
+        {
+            var dir = new DirectoryInfo(Environment.CurrentDirectory);
+            while (dir != null)
+            {
+                var mcpFile = Path.Combine(dir.FullName, ".claude", "mcp.json");
+                if (File.Exists(mcpFile) && !_mcpJsonFiles.Contains(mcpFile))
+                    _mcpJsonFiles.Add(mcpFile);
+                var mcpFile2 = Path.Combine(dir.FullName, "mcp.json");
+                if (File.Exists(mcpFile2) && !_mcpJsonFiles.Contains(mcpFile2))
+                    _mcpJsonFiles.Add(mcpFile2);
+                dir = dir.Parent;
+            }
+        }
+        catch { }
+
         // Also find .mcp.json / mcp.json in project roots
         try
         {
