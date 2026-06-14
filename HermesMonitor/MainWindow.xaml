@@ -9,7 +9,6 @@
         WindowStartupLocation="CenterScreen"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
     <Window.Resources>
-        <!-- 复古绿主色调 + 米白背景 + 焦橙点缀 -->
         <Color x:Key="Bg">#FFF5F2EB</Color>
         <Color x:Key="BgDark">#FFECE8DD</Color>
         <Color x:Key="Green">#FF5B7B5E</Color>
@@ -55,11 +54,14 @@
     <Border CornerRadius="0" Background="{StaticResource BgBrush}">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="52"/><RowDefinition Height="56"/>
-                <RowDefinition Height="48"/><RowDefinition Height="*"/>
+                <RowDefinition Height="52"/>
+                <RowDefinition Height="56"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="48"/>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="36"/>
             </Grid.RowDefinitions>
-            <!-- Title -->
+            <!-- Title Bar -->
             <Border Grid.Row="0" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="24,0,20,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -69,19 +71,23 @@
                         <TextBlock Text="  Hermes Monitor" FontSize="17" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}" Margin="10,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <TextBlock x:Name="RefreshBtn" Text="↻" FontSize="18" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Refresh_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
-                        <TextBlock x:Name="CloseBtn" Text="✕" FontSize="16" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" MouseLeftButtonDown="Close_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <Border Name="ThemeBtn" CornerRadius="4" Width="28" Height="28" Cursor="Hand" Margin="0,0,8,0" MouseLeftButtonDown="ThemeToggle_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave" Background="Transparent">
+                            <TextBlock Name="ThemeIcon" Text="🌙" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Name="ExportBtn" Text="📥" FontSize="16" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Export_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <TextBlock Name="RefreshBtn" Text="↻" FontSize="18" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Refresh_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <TextBlock Name="CloseBtn" Text="✕" FontSize="16" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" MouseLeftButtonDown="Close_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
                     </StackPanel>
                 </Grid>
             </Border>
-            <!-- Stats -->
-            <WrapPanel Grid.Row="1" Margin="24,10,24,6" x:Name="StatsPanel">
+            <!-- Stats Bar -->
+            <WrapPanel Grid.Row="1" Margin="24,10,24,6" Name="StatsPanel">
                 <Border CornerRadius="8" Padding="14,0" Height="34" Margin="0,0,10,0" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <Ellipse Width="8" Height="8" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBlock Text="MCP" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}"/>
                         <Border Background="{StaticResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
-                            <TextBlock x:Name="StatMCP" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Name="StatMCP" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Border>
@@ -90,51 +96,66 @@
                         <Ellipse Width="8" Height="8" Fill="{StaticResource GreenLightBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
                         <TextBlock Text="Skills" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}"/>
                         <Border Background="{StaticResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
-                            <TextBlock x:Name="StatSkills" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Name="StatSkills" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </StackPanel>
+                </Border>
+                <Border CornerRadius="8" Padding="14,0" Height="34" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
+                        <Border CornerRadius="4" Padding="6,0,6,0" Background="Transparent" Width="140">
+                            <TextBox Name="SearchBox" FontSize="12" Foreground="{StaticResource TextSecBrush}" BorderThickness="0" Background="Transparent" Text="" VerticalAlignment="Center" TextChanged="Search_TextChanged"/>
                         </Border>
                     </StackPanel>
                 </Border>
             </WrapPanel>
-            <!-- Tabs -->
-            <Border Grid.Row="2" Background="{StaticResource CardBgBrush}" CornerRadius="10" Margin="24,0,24,8" Padding="4" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+            <!-- Agent Framework Info Banner -->
+            <Border Grid.Row="2" Background="{StaticResource GreenBgBrush}" CornerRadius="8" Margin="24,0,24,6" Padding="12,6" BorderBrush="{StaticResource GreenLightBrush}" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
-                    <Border x:Name="MCPTabBg" CornerRadius="8" Padding="22,0" Background="{StaticResource GreenBrush}" Height="36" Cursor="Hand" Margin="0,0,4,0" MouseLeftButtonDown="TabMCP_Click">
+                    <TextBlock Text="🤖" FontSize="13" VerticalAlignment="Center"/>
+                    <TextBlock Name="AgentInfoText" Text="Supports Claude Code · Codex · Cursor · Windsurf · OpenCode · Gemini · Copilot + project-level MCP" FontSize="11" Foreground="{StaticResource GreenDarkBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+            <!-- Tabs -->
+            <Border Grid.Row="3" Background="{StaticResource CardBgBrush}" CornerRadius="10" Margin="24,0,24,8" Padding="4" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <StackPanel Orientation="Horizontal">
+                    <Border Name="MCPTabBg" CornerRadius="8" Padding="22,0" Background="{StaticResource GreenBrush}" Height="36" Cursor="Hand" Margin="0,0,4,0" MouseLeftButtonDown="TabMCP_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="⚡" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="MCPTabText" Text="  MCP" FontSize="13" FontWeight="600" Foreground="White" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="MCPTabText" Text="  MCP" FontSize="13" FontWeight="600" Foreground="White" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <Border Background="#30FFFFFF" CornerRadius="6" Padding="6,1,6,1">
-                                <TextBlock x:Name="MCPTabBadge" Text="0" FontSize="10" FontWeight="700" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Name="MCPTabBadge" Text="0" FontSize="10" FontWeight="700" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </Border>
-                    <Border x:Name="SkillsTabBg" CornerRadius="8" Padding="22,0" Background="Transparent" Height="36" Cursor="Hand" MouseLeftButtonDown="TabSkills_Click">
+                    <Border Name="SkillsTabBg" CornerRadius="8" Padding="22,0" Background="Transparent" Height="36" Cursor="Hand" MouseLeftButtonDown="TabSkills_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="🧩" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock x:Name="SkillsTabText" Text="  Skills" FontSize="13" FontWeight="500" Foreground="{StaticResource TextSecBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <TextBlock Name="SkillsTabText" Text="  Skills" FontSize="13" FontWeight="500" Foreground="{StaticResource TextSecBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
                             <Border Background="{StaticResource GreenBgLightBrush}" CornerRadius="6" Padding="6,1,6,1">
-                                <TextBlock x:Name="SkillsTabBadge" Text="0" FontSize="10" FontWeight="600" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                <TextBlock Name="SkillsTabBadge" Text="0" FontSize="10" FontWeight="600" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </Border>
                 </StackPanel>
             </Border>
             <!-- Content -->
-            <Grid Grid.Row="3" Margin="24,0,24,8">
-                <ScrollViewer x:Name="ScrollerMCP" VerticalScrollBarVisibility="Hidden" Background="Transparent" BorderThickness="0">
-                    <StackPanel x:Name="MCPList"/>
+            <Grid Grid.Row="4" Margin="24,0,24,8">
+                <ScrollViewer Name="ScrollerMCP" VerticalScrollBarVisibility="Hidden" Background="Transparent" BorderThickness="0">
+                    <StackPanel Name="MCPList"/>
                 </ScrollViewer>
-                <ScrollViewer x:Name="ScrollerSkills" VerticalScrollBarVisibility="Hidden" Visibility="Collapsed" Background="Transparent" BorderThickness="0">
-                    <StackPanel x:Name="SkillsList"/>
+                <ScrollViewer Name="ScrollerSkills" VerticalScrollBarVisibility="Hidden" Visibility="Collapsed" Background="Transparent" BorderThickness="0">
+                    <StackPanel Name="SkillsList"/>
                 </ScrollViewer>
             </Grid>
-            <!-- Status -->
-            <Border Grid.Row="4" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,0,24,0">
+            <!-- Status Bar -->
+            <Border Grid.Row="5" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,0,24,0">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="6" Height="6" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7"/>
+                        <Ellipse Name="LiveDot" Width="6" Height="6" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7"/>
                         <TextBlock Text="Live" FontSize="11" Foreground="{StaticResource TextDimBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock x:Name="LastUpdateText" Text="Just now" FontSize="11" Foreground="{StaticResource TextDimBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Name="LastUpdateText" Text="Just now" FontSize="11" Foreground="{StaticResource TextDimBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </Grid>

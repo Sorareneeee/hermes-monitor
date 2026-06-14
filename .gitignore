@@ -8,6 +8,8 @@ dist/
 *.user
 *.suo
 .vs/
+.vscode/
 packages/
+HermesMonitor.theme.json
 .DS_Store
 Thumbs.db

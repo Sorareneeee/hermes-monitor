@@ -12,6 +12,7 @@
     <PublishSingleFile>true</PublishSingleFile>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <AssemblyName>HermesMonitor</AssemblyName>
+    <RootNamespace>HermesMonitor</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

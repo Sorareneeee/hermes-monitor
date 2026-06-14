@@ -1,1 +1,4 @@
-See every MCP server and agent Skill running on your machine — zero config.
+Hermes Monitor — See every MCP server and agent Skill running on your machine.
+Zero-config Windows desktop app. Supports Claude Code, Codex, Cursor, Windsurf,
+OpenCode, Gemini CLI, GitHub Copilot, and VS Code. Auto-discovers running
+processes and config files. Single-file EXE, no runtime required.
