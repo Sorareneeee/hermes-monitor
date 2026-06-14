@@ -148,6 +148,46 @@ public partial class MainWindow : Window
         foreach (var f in rootMcpFiles)
             if (File.Exists(f)) _mcpJsonFiles.Add(f);
 
+        // CRITICAL: Parse ~/.claude.json and extract all project-level MCP servers
+        var claudeJson = Path.Combine(h, ".claude.json");
+        if (File.Exists(claudeJson))
+        {
+            try
+            {
+                var root = ReadJson(claudeJson);
+                if (root != null && root.Value.ValueKind == JsonValueKind.Object)
+                {
+                    // Extract MCP servers from projects.{projectPath}.mcpServers
+                    if (root.Value.TryGetProperty("projects", out var projects) && projects.ValueKind == JsonValueKind.Object)
+                    {
+                        foreach (var proj in projects.EnumerateObject())
+                        {
+                            if (proj.Value.ValueKind != JsonValueKind.Object) continue;
+                            if (proj.Value.TryGetProperty("mcpServers", out var ms) && ms.ValueKind == JsonValueKind.Object)
+                            {
+                                // Found MCP servers in a project entry — add the project's .claude/mcp.json if it exists
+                                var projPath = proj.Name.Replace('/', Path.DirectorySeparatorChar);
+                                var projMcp = Path.Combine(projPath, ".claude", "mcp.json");
+                                if (File.Exists(projMcp) && !_mcpJsonFiles.Contains(projMcp))
+                                    _mcpJsonFiles.Add(projMcp);
+
+                                // Also check for .mcp.json in the project root
+                                var projMcp2 = Path.Combine(projPath, ".mcp.json");
+                                if (File.Exists(projMcp2) && !_mcpJsonFiles.Contains(projMcp2))
+                                    _mcpJsonFiles.Add(projMcp2);
+
+                                // Also try mcp.json without dot prefix
+                                var projMcp3 = Path.Combine(projPath, "mcp.json");
+                                if (File.Exists(projMcp3) && !_mcpJsonFiles.Contains(projMcp3))
+                                    _mcpJsonFiles.Add(projMcp3);
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+
         // Collect all JSON files from agent config dirs
         foreach (var d in cs)
         {
@@ -174,19 +214,51 @@ public partial class MainWindow : Window
             }
         }
 
-        // CRITICAL: Also scan current directory and parent directories for .claude/mcp.json
+        // CRITICAL: Also scan from EXE's location upward (user runs from anywhere)
         try
         {
-            var dir = new DirectoryInfo(Environment.CurrentDirectory);
-            while (dir != null)
+            // Start from EXE location
+            var exeDir = AppDomain.CurrentDomain.BaseDirectory;
+            if (!string.IsNullOrEmpty(exeDir))
             {
-                var mcpFile = Path.Combine(dir.FullName, ".claude", "mcp.json");
-                if (File.Exists(mcpFile) && !_mcpJsonFiles.Contains(mcpFile))
-                    _mcpJsonFiles.Add(mcpFile);
-                var mcpFile2 = Path.Combine(dir.FullName, "mcp.json");
-                if (File.Exists(mcpFile2) && !_mcpJsonFiles.Contains(mcpFile2))
-                    _mcpJsonFiles.Add(mcpFile2);
-                dir = dir.Parent;
+                var dir = new DirectoryInfo(exeDir);
+                while (dir != null)
+                {
+                    AddMcpIfExists(dir.FullName, ".claude", "mcp.json");
+                    AddMcpIfExists(dir.FullName, ".mcp.json");
+                    AddMcpIfExists(dir.FullName, "mcp.json");
+                    dir = dir.Parent;
+                }
+            }
+
+            // Also try CurrentDirectory (might differ from EXE location)
+            try
+            {
+                var dir2 = new DirectoryInfo(Environment.CurrentDirectory);
+                while (dir2 != null)
+                {
+                    AddMcpIfExists(dir2.FullName, ".claude", "mcp.json");
+                    AddMcpIfExists(dir2.FullName, ".mcp.json");
+                    AddMcpIfExists(dir2.FullName, "mcp.json");
+                    dir2 = dir2.Parent;
+                }
+            }
+            catch { }
+
+            // Scan ALL fixed drives for .claude/mcp.json (find every project)
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                if (drive.DriveType != DriveType.Fixed || !drive.IsReady) continue;
+                try
+                {
+                    foreach (var sub in Directory.GetDirectories(drive.RootDirectory.FullName))
+                    {
+                        AddMcpIfExists(sub, ".claude", "mcp.json");
+                        AddMcpIfExists(sub, ".mcp.json");
+                        AddMcpIfExists(sub, "mcp.json");
+                    }
+                }
+                catch { }
             }
         }
         catch { }
@@ -219,6 +291,17 @@ public partial class MainWindow : Window
     }
 
     private JsonElement? ReadJson(string p) { try { if (!File.Exists(p)) return null; var c = File.ReadAllText(p); if (string.IsNullOrWhiteSpace(c)) return null; return JsonSerializer.Deserialize<JsonElement>(c); } catch { return null; } }
+
+    private void AddMcpIfExists(string basePath, string subDir, string fileName)
+    {
+        var full = Path.Combine(basePath, subDir, fileName);
+        if (File.Exists(full) && !_mcpJsonFiles.Contains(full)) _mcpJsonFiles.Add(full);
+    }
+    private void AddMcpIfExists(string basePath, string fileName)
+    {
+        var full = Path.Combine(basePath, fileName);
+        if (File.Exists(full) && !_mcpJsonFiles.Contains(full)) _mcpJsonFiles.Add(full);
+    }
 
     private string JStr(JsonElement e, string k) => e.ValueKind == JsonValueKind.Object && e.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
 
