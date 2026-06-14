@@ -28,7 +28,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        ApplyTheme();
         DiscoverAndLoad();
         var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
         t.Tick += (_, _) => { _discovery.Discover(); LoadData(); };
@@ -48,7 +47,7 @@ public partial class MainWindow : Window
     private void ThemeToggle_Click(object s, MouseButtonEventArgs e)
     {
         _themeService.Toggle();
-        ApplyTheme();
+        try { ApplyTheme(); } catch { }
         RenderCurrentList();
     }
 

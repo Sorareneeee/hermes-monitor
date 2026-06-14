@@ -1,6 +1,9 @@
-namespace HermesMonitor.Services;
-
+using System;
+using System.IO;
 using System.Text.Json;
+using HermesMonitor.Helpers;
+
+namespace HermesMonitor.Services;
 
 public class ThemeService
 {
