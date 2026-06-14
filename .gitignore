@@ -1,7 +1,8 @@
+.gitignore
+node_modules/
 bin/
 obj/
 dist/
-node_modules/
 *.exe
 *.pdb
 *.user
