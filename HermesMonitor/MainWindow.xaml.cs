@@ -14,7 +14,8 @@ namespace HermesMonitor;
 public partial class MainWindow : Window
 {
     private readonly List<string> _skillsDirs = new();
-    private readonly List<string> _mcpJsonPaths = new();
+    private readonly List<string> _mcpJsonFiles = new();
+    private readonly HashSet<string> _seenAcrossAllScans = new();
 
     private static readonly Color CardBg = Color.FromRgb(250, 248, 244);
     private static readonly Color CardBorder = Color.FromRgb(230, 224, 212);
@@ -35,6 +36,8 @@ public partial class MainWindow : Window
         ["stock-images-mcp"] = "图库搜索下载：聚合 Pexels、Pixabay、Unsplash 三大图库。",
         ["scrapling"] = "高级网页抓取：反爬虫绕过、Cloudflare 验证码自动求解、JS 渲染页面抓取。",
         ["semble"] = "代码语义搜索：用自然语言搜索代码库。",
+        ["@github/mcp"] = "GitHub MCP 服务器：管理 Issues、PR、代码搜索、仓库操作等。",
+        ["github-mcp-server"] = "GitHub 官方 MCP 服务器：Go 语言实现，支持 OAuth 认证。",
     };
 
     private static readonly Dictionary<string, string> NiceName = new()
@@ -62,10 +65,10 @@ public partial class MainWindow : Window
         ["self-improving-agent"] = "🔄", ["web-fetch-network-troubleshooter"] = "🌐",
     };
 
-    public MainWindow() { InitializeComponent(); DiscoverPaths(); LoadData(); var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(60) }; t.Tick += (_, _) => LoadData(); t.Start(); }
+    public MainWindow() { InitializeComponent(); DiscoverAll(); LoadData(); var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(60) }; t.Tick += (_, _) => LoadData(); t.Start(); }
 
     private void Close_Click(object s, RoutedEventArgs e) => Close();
-    private void Refresh_Click(object s, RoutedEventArgs e) => LoadData();
+    private void Refresh_Click(object s, RoutedEventArgs e) { _seenAcrossAllScans.Clear(); LoadData(); }
     private void BtnEnter(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(GreenC); }
     private void BtnLeave(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(TextSec); }
     private void TabMCP_Click(object s, MouseButtonEventArgs e) => SwitchTab(0);
@@ -83,40 +86,272 @@ public partial class MainWindow : Window
 
     private void Window_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
 
-    private void DiscoverPaths()
+    // ──────────────────────────────────────────────
+    // Phase 1: Discover paths across ALL agent frameworks
+    // ──────────────────────────────────────────────
+    private void DiscoverAll()
     {
         var h = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var a = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         var l = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         var cs = new HashSet<string>();
-        foreach (var d in new[] { Path.Combine(h, ".claude"), Path.Combine(h, ".codex"), Path.Combine(a, "Claude"), Path.Combine(l, "Claude"), Path.Combine(a, "Codex"), Path.Combine(l, "Codex"), Path.Combine(h, ".cursor"), Path.Combine(h, ".windsurf") }) { if (Directory.Exists(d) || File.Exists(d)) cs.Add(d); }
-        foreach (var r in new[] { h, a, l }) { try { foreach (var d in Directory.GetDirectories(r)) { var cd = Path.Combine(d, ".claude"); if (Directory.Exists(cd)) cs.Add(cd); } } catch { } }
-        foreach (var d in cs) { if (!Directory.Exists(d)) continue; var s = Path.Combine(d, "skills"); if (Directory.Exists(s)) _skillsDirs.Add(s); foreach (var f in Directory.GetFiles(d, "*.json")) { var fn = Path.GetFileName(f).ToLower(); if (fn.Contains("mcp") || fn.Contains("config") || fn.Contains("setting")) _mcpJsonPaths.Add(f); } }
+
+        // === Agent config directories (for scanning JSON files & skills) ===
+        string[][] agents = new[] {
+            // Claude Code (user-level)
+            new[] { Path.Combine(h, ".claude") },
+            // Claude Desktop
+            new[] { Path.Combine(a, "Claude"), Path.Combine(l, "Claude") },
+            // Codex CLI
+            new[] { Path.Combine(h, ".codex") },
+            // Cursor
+            new[] { Path.Combine(h, ".cursor") },
+            // Windsurf (Codeium)
+            new[] { Path.Combine(h, ".windsurf"), Path.Combine(h, ".codeium", "windsurf") },
+            // OpenCode
+            new[] { Path.Combine(h, ".opencode"), Path.Combine(Path.GetTempPath(), "opencode") },
+            // Gemini CLI
+            new[] { Path.Combine(h, ".gemini") },
+            // GitHub Copilot CLI
+            new[] { Path.Combine(h, ".copilot") },
+            // VS Code (user-level MCP)
+            new[] { Path.Combine(a, "Code", "User"), Path.Combine(l, "Code", "User") },
+        };
+
+        foreach (var dirs in agents)
+            foreach (var d in dirs)
+                if (Directory.Exists(d) || File.Exists(d))
+                    cs.Add(d);
+
+        // Scan all repo directories that have .claude subdirectory (project-level configs)
+        foreach (var root in new[] { h, a, l })
+        {
+            try
+            {
+                foreach (var d in Directory.GetDirectories(root))
+                {
+                    var cd = Path.Combine(d, ".claude");
+                    if (Directory.Exists(cd)) cs.Add(cd);
+                    var cd2 = Path.Combine(d, ".cursor");
+                    if (Directory.Exists(cd2)) cs.Add(cd2);
+                }
+            }
+            catch { }
+        }
+
+        // Also scan the root-level MCP config files at ~/
+        string[] rootMcpFiles = new[] {
+            Path.Combine(h, ".claude.json"),
+            Path.Combine(h, ".copilot", "mcp-config.json"),
+            Path.Combine(h, ".gemini", "settings.json"),
+        };
+        foreach (var f in rootMcpFiles)
+            if (File.Exists(f)) _mcpJsonFiles.Add(f);
+
+        // Collect all JSON files from agent config dirs
+        foreach (var d in cs)
+        {
+            if (!Directory.Exists(d)) continue;
+
+            // Skills directories
+            var s = Path.Combine(d, "skills");
+            if (Directory.Exists(s)) _skillsDirs.Add(s);
+
+            // Gemini CLI skills
+            var gs = Path.Combine(d, "skills");
+            if (Directory.Exists(gs) && !_skillsDirs.Contains(gs)) _skillsDirs.Add(gs);
+
+            // Codex skills
+            var cxs = Path.Combine(d, "skills");
+            if (Directory.Exists(cxs) && !_skillsDirs.Contains(cxs)) _skillsDirs.Add(cxs);
+
+            // Collect all relevant JSON files
+            foreach (var f in Directory.GetFiles(d, "*.json"))
+            {
+                var fn = Path.GetFileName(f).ToLower();
+                if (fn.Contains("mcp") || fn.Contains("config") || fn.Contains("setting"))
+                    _mcpJsonFiles.Add(f);
+            }
+        }
+
+        // Also find .mcp.json / mcp.json in project roots
+        try
+        {
+            foreach (var d in Directory.GetDirectories(h))
+            {
+                var mcpProj = Path.Combine(d, ".mcp.json");
+                if (File.Exists(mcpProj)) _mcpJsonFiles.Add(mcpProj);
+                mcpProj = Path.Combine(d, "mcp.json");
+                if (File.Exists(mcpProj)) _mcpJsonFiles.Add(mcpProj);
+            }
+        }
+        catch { }
+
+        // Also find skills in standard locations: ~/.claude/skills, ~/.gemini/skills, ~/.opencode/skills
+        foreach (var skDir in new[] {
+            Path.Combine(h, ".claude", "skills"),
+            Path.Combine(h, ".gemini", "skills"),
+            Path.Combine(h, ".opencode", "skills"),
+            Path.Combine(h, ".cursor", "skills"),
+            Path.Combine(a, "Claude", "skills"),
+        })
+        {
+            if (Directory.Exists(skDir) && !_skillsDirs.Contains(skDir))
+                _skillsDirs.Add(skDir);
+        }
     }
 
     private JsonElement? ReadJson(string p) { try { if (!File.Exists(p)) return null; var c = File.ReadAllText(p); if (string.IsNullOrWhiteSpace(c)) return null; return JsonSerializer.Deserialize<JsonElement>(c); } catch { return null; } }
 
     private string JStr(JsonElement e, string k) => e.ValueKind == JsonValueKind.Object && e.TryGetProperty(k, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() ?? "" : "";
 
+    // ──────────────────────────────────────────────
+    // Phase 2: Scan MCP servers (running processes + all config files)
+    // ──────────────────────────────────────────────
     private List<Item> GetMcp()
     {
-        var r = new List<Item>(); var seen = new HashSet<string>(); var cl = new Dictionary<int, string>();
+        var r = new List<Item>();
+        var seen = new HashSet<string>();
+
+        // === Source A: Running processes (node, python, go binaries) ===
+        var cl = new Dictionary<int, string>();
         try { using var s = new System.Management.ManagementObjectSearcher("SELECT ProcessId, CommandLine FROM Win32_Process"); foreach (var o in s.Get()) cl[Convert.ToInt32(o["ProcessId"])] = o["CommandLine"]?.ToString() ?? ""; } catch { }
-        foreach (var p in Process.GetProcesses()) { try { if (p.ProcessName != "node" && p.ProcessName != "python") continue; if (!cl.TryGetValue(p.Id, out var c) || string.IsNullOrEmpty(c)) continue; var raw = ExtractName(c); if (raw == null || !seen.Add(raw)) continue; r.Add(new Item { Name = NiceName.GetValueOrDefault(raw, raw), Raw = raw, Desc = McpD.GetValueOrDefault(raw, ""), Icon = "⚡", IsMcp = true }); } catch { } }
+
+        foreach (var p in Process.GetProcesses())
+        {
+            try
+            {
+                // Check node, python, AND go binaries for MCP servers
+                if (p.ProcessName != "node" && p.ProcessName != "python" && p.ProcessName != "go" && p.ProcessName != "github-mcp-server")
+                    continue;
+                if (!cl.TryGetValue(p.Id, out var cmd) || string.IsNullOrEmpty(cmd)) continue;
+                var raw = ExtractName(cmd, p.ProcessName);
+                if (raw == null || !seen.Add(raw)) continue;
+                r.Add(new Item { Name = NiceName.GetValueOrDefault(raw, raw), Raw = raw, Desc = McpD.GetValueOrDefault(raw, ""), Icon = "⚡", IsMcp = true });
+            }
+            catch { }
+        }
+
+        // === Source B: All discovered MCP JSON/config files ===
+        foreach (var jsonPath in _mcpJsonFiles)
+        {
+            try
+            {
+                var root = ReadJson(jsonPath);
+                if (root == null || root.Value.ValueKind != JsonValueKind.Object) continue;
+
+                // Try standard mcpServers key
+                System.Text.Json.JsonElement servers = default;
+                if (root.Value.TryGetProperty("mcpServers", out var ms1)) servers = ms1;
+
+                // Try Codex-style [mcp_servers.*] in TOML — actually this is JSON from .codex/settings.json
+                if (servers.ValueKind != JsonValueKind.Object && root.Value.TryGetProperty("mcp_servers", out var ms2)) servers = ms2;
+
+                // Try Copilot mcp-config format: { "servers": { ... } }
+                if (servers.ValueKind != JsonValueKind.Object && root.Value.TryGetProperty("servers", out var ms3)) servers = ms3;
+
+                // Try Gemini settings format: { "mcpServers": { ... } }
+                if (servers.ValueKind != JsonValueKind.Object && root.Value.TryGetProperty("url", out var _))
+                {
+                    // Could be a Gemini/OpenCode remote format — extract what we can
+                }
+
+                if (servers.ValueKind != JsonValueKind.Object) continue;
+
+                foreach (var entry in servers.EnumerateObject())
+                {
+                    if (!seen.Add(entry.Name)) continue;
+                    var desc = McpD.GetValueOrDefault(entry.Name, "");
+
+                    // Try to extract command from the server entry for better description
+                    if (string.IsNullOrEmpty(desc) && entry.Value.ValueKind == JsonValueKind.Object)
+                    {
+                        if (entry.Value.TryGetProperty("command", out var cmdEl) && cmdEl.ValueKind == JsonValueKind.String)
+                        {
+                            var cmdStr = cmdEl.GetString() ?? "";
+                            if (cmdStr.Contains("github"))
+                                desc = McpD.GetValueOrDefault("@github/mcp", "GitHub integration MCP server");
+                            else if (cmdStr.Contains("postgres") || cmdStr.Contains("database"))
+                                desc = "数据库 MCP 服务器：直接查询和操作数据库。";
+                            else if (cmdStr.Contains("filesystem"))
+                                desc = "文件系统 MCP 服务器：读写和搜索本地文件。";
+                            else if (cmdStr.Contains("brave"))
+                                desc = "Brave 搜索 MCP 服务器：网络搜索和本地搜索。";
+                            else if (cmdStr.Contains("playwright"))
+                                desc = McpD.GetValueOrDefault("@playwright/mcp", "浏览器自动化 MCP 服务器。");
+                        }
+                    }
+
+                    r.Add(new Item { Name = NiceName.GetValueOrDefault(entry.Name, entry.Name), Raw = entry.Name, Desc = desc, Icon = "⚡", IsMcp = true });
+                }
+            }
+            catch { }
+        }
+
         return r;
     }
 
+    // ──────────────────────────────────────────────
+    // Phase 3: Scan skills from all discovered skill directories
+    // ──────────────────────────────────────────────
     private List<Item> GetSkills()
     {
         var r = new List<Item>();
-        foreach (var d in _skillsDirs) { if (!Directory.Exists(d)) continue; foreach (var s in Directory.GetDirectories(d)) { var n = Path.GetFileName(s); var desc = SkillD.GetValueOrDefault(n, ""); if (string.IsNullOrEmpty(desc)) { var m = ReadJson(Path.Combine(s, "_meta.json")); if (m != null) desc = JStr(m.Value, "description"); } r.Add(new Item { Name = n, Icon = SkillI.GetValueOrDefault(n, "🧩"), Desc = desc }); } }
+        var seen = new HashSet<string>();
+
+        foreach (var d in _skillsDirs)
+        {
+            if (!Directory.Exists(d)) continue;
+            foreach (var s in Directory.GetDirectories(d))
+            {
+                var n = Path.GetFileName(s);
+                if (!seen.Add(n)) continue;
+                var desc = SkillD.GetValueOrDefault(n, "");
+                if (string.IsNullOrEmpty(desc))
+                {
+                    var m = ReadJson(Path.Combine(s, "_meta.json"));
+                    if (m != null) desc = JStr(m.Value, "description");
+                    if (string.IsNullOrEmpty(desc))
+                    {
+                        var sk = ReadJson(Path.Combine(s, "SKILL.md"));
+                        // SKILL.md is markdown, not JSON — just mark it as found
+                        if (sk == null && File.Exists(Path.Combine(s, "SKILL.md")))
+                            desc = "已安装的 Agent Skill（SKILL.md）。";
+                    }
+                }
+                r.Add(new Item { Name = n, Icon = SkillI.GetValueOrDefault(n, "🧩"), Desc = desc });
+            }
+        }
         return r;
     }
 
-    private static string? ExtractName(string cmd)
+    private static string? ExtractName(string cmd, string procName)
     {
-        var m = System.Text.RegularExpressions.Regex.Match(cmd, @"npx[^""]*""[^""]*""\s+""([^""]+)"""); if (m.Success) { var p = m.Groups[1].Value; var a = p.IndexOf("@", StringComparison.Ordinal); if (a > 0 && p[a - 1] != '/') p = p[..a]; return p; }
-        var cm = System.Text.RegularExpressions.Regex.Match(cmd, @"npx\\.+\\\.\.\\(@?[^\\]+)"); if (cm.Success) return cm.Groups[1].Value; if (cmd.Contains("scrapling")) return "scrapling"; if (cmd.Contains("semble")) return "semble"; return null;
+        if (procName == "github-mcp-server") return "github-mcp-server";
+
+        // npx with quoted args: npx ... "@playwright/mcp"
+        var m = System.Text.RegularExpressions.Regex.Match(cmd, @"npx[^""]*""[^""]*""\s+""([^""]+)""");
+        if (m.Success)
+        {
+            var p = m.Groups[1].Value;
+            var a = p.IndexOf("@", StringComparison.Ordinal);
+            if (a > 0 && p[a - 1] != '/') p = p[..a];
+            return p;
+        }
+
+        // npx with unquoted args
+        var m2 = System.Text.RegularExpressions.Regex.Match(cmd, @"npx\\.+\\\.\.\\(@?[^\\]+)");
+        if (m2.Success) return m2.Groups[1].Value;
+
+        // Direct binary/command patterns
+        if (cmd.Contains("scrapling")) return "scrapling";
+        if (cmd.Contains("semble")) return "semble";
+        if (cmd.Contains("chrome-devtools")) return "chrome-devtools-mcp";
+        if (cmd.Contains("stock-images")) return "stock-images-mcp";
+        if (cmd.Contains("github-mcp-server")) return "github-mcp-server";
+        if (cmd.Contains("context7")) return "@upstash/context7-mcp";
+
+        return null;
     }
 
     private void LoadData()
@@ -153,7 +388,7 @@ public partial class MainWindow : Window
         var copyName = item.Raw ?? item.Name;
         titleRow.Children.Add(new TextBlock { Text = item.Name, FontSize = 14, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(TextPri), VerticalAlignment = VerticalAlignment.Center });
 
-        // Copy button (焦橙色)
+        // Copy button
         var cp = new Border { CornerRadius = new CornerRadius(4), Background = new SolidColorBrush(Color.FromArgb(25, 201, 101, 59)), Width = 22, Height = 22, Margin = new Thickness(8, 0, 0, 0), Cursor = Cursors.Hand, VerticalAlignment = VerticalAlignment.Center };
         var cpT = new TextBlock { Text = "📋", FontSize = 10, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         cp.Child = cpT;
@@ -207,4 +442,5 @@ public partial class MainWindow : Window
     }
 }
 
-public class Item { public string Name { get; set; } = ""; public string Desc { get; set; } = ""; public string Icon { get; set; } = ""; public string Raw { get; set; } = ""; public bool IsMcp { get; set; } }
+public class Item { public string Name { get; set; } = ""; public string Desc { get; set; } = ""; public string Icon { get; set; } = ""; public string Raw { get; set; } = ""; public bool IsMcp { get; set; }
+}
