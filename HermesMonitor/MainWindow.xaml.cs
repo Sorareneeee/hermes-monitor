@@ -28,6 +28,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ApplyTheme();
         DiscoverAndLoad();
         var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(60) };
         t.Tick += (_, _) => { _discovery.Discover(); LoadData(); };
@@ -36,8 +37,8 @@ public partial class MainWindow : Window
 
     private void Close_Click(object s, RoutedEventArgs e) => Close();
     private void Window_MouseLeftButtonDown(object s, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
-    private void BtnEnter(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(_themeService.IsDarkMode ? AppColors.Dark.Green : AppColors.Light.Green); }
-    private void BtnLeave(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(_themeService.IsDarkMode ? AppColors.Dark.TextSec : AppColors.Light.TextSec); }
+    private void BtnEnter(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(ThemeColors.Green); }
+    private void BtnLeave(object s, MouseEventArgs e) { if (s is TextBlock tb) tb.Foreground = new SolidColorBrush(ThemeColors.TextSec); }
     private void TabMCP_Click(object s, MouseButtonEventArgs e) => SwitchTab(0);
     private void TabSkills_Click(object s, MouseButtonEventArgs e) => SwitchTab(1);
     private void Search_TextChanged(object s, TextChangedEventArgs e) { _searchFilter = SearchBox.Text?.Trim() ?? ""; RenderCurrentList(); }
@@ -47,7 +48,7 @@ public partial class MainWindow : Window
     private void ThemeToggle_Click(object s, MouseButtonEventArgs e)
     {
         _themeService.Toggle();
-        try { ApplyTheme(); } catch { }
+        ApplyTheme();
         RenderCurrentList();
     }
 
@@ -62,16 +63,27 @@ public partial class MainWindow : Window
         catch (Exception ex) { MessageBox.Show($"Export failed: {ex.Message}", "Hermes Monitor", MessageBoxButton.OK, MessageBoxImage.Warning); }
     }
 
+    private AppColors ThemeColors => _themeService.IsDarkMode ? AppColors.Dark : AppColors.Light;
+
     private void ApplyTheme()
     {
-        var c = _themeService.IsDarkMode ? AppColors.Dark : AppColors.Light;
-        Background = new SolidColorBrush(c.Bg);
-        foreach (var key in new[] { "Bg", "BgDark", "Green", "GreenLight", "GreenDark", "GreenBg", "GreenBgLight", "Orange", "OrangeLight", "OrangeBg", "TextPri", "TextSec", "TextDim", "CardBg", "CardBorder" })
-            Resources[key] = c.GetType().GetProperty(key)?.GetValue(c) ?? Resources[key];
-        foreach (var key in new[] { "BgBrush", "BgDarkBrush", "GreenBrush", "GreenLightBrush", "GreenDarkBrush", "GreenBgBrush", "GreenBgLightBrush", "OrangeBrush", "OrangeLightBrush", "OrangeBgBrush", "TextPriBrush", "TextSecBrush", "TextDimBrush", "CardBgBrush", "CardBorderBrush" })
-            Resources[key] = new SolidColorBrush((Color)Resources[key[..^4]]);
+        var c = ThemeColors;
+        Resources["Bg"] = c.Bg;
+        Resources["BgDark"] = c.BgDark;
+        Resources["Green"] = c.Green;
+        Resources["GreenLight"] = c.GreenLight;
+        Resources["GreenDark"] = c.GreenDark;
+        Resources["GreenBg"] = c.GreenBg;
+        Resources["GreenBgLight"] = c.GreenBgLight;
+        Resources["Orange"] = c.Orange;
+        Resources["OrangeLight"] = c.OrangeLight;
+        Resources["OrangeBg"] = c.OrangeBg;
+        Resources["TextPri"] = c.TextPri;
+        Resources["TextSec"] = c.TextSec;
+        Resources["TextDim"] = c.TextDim;
+        Resources["CardBg"] = c.CardBg;
+        Resources["CardBorder"] = c.CardBorder;
         ThemeIcon.Text = _themeService.IsDarkMode ? "☀️" : "🌙";
-        LiveDot.Fill = new SolidColorBrush(c.Green);
     }
 
     private void DiscoverAndLoad() { _discovery.Discover(); LoadData(); }
@@ -95,7 +107,7 @@ public partial class MainWindow : Window
     private void SwitchTab(int i)
     {
         _activeTab = i;
-        var c = _themeService.IsDarkMode ? AppColors.Dark : AppColors.Light;
+        var c = ThemeColors;
         ScrollerMCP.Visibility = i == 0 ? Visibility.Visible : Visibility.Collapsed;
         ScrollerSkills.Visibility = i == 1 ? Visibility.Visible : Visibility.Collapsed;
         MCPTabBg.Background = new SolidColorBrush(i == 0 ? c.Green : Colors.Transparent);
@@ -107,7 +119,7 @@ public partial class MainWindow : Window
 
     private void RenderCurrentList()
     {
-        var c = _themeService.IsDarkMode ? AppColors.Dark : AppColors.Light;
+        var c = ThemeColors;
         var items = FilterItems(_activeTab == 0 ? _allMcp : _allSkills);
         var container = _activeTab == 0 ? MCPList : SkillsList;
         container.Children.Clear();
@@ -152,7 +164,10 @@ public partial class MainWindow : Window
         if (!string.IsNullOrEmpty(item.Desc)) { dc.Children.Add(new TextBlock { Text = "● Purpose / 用途", FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(c.Green), Margin = new Thickness(0, 0, 0, 4) }); dc.Children.Add(new TextBlock { Text = item.Desc, FontSize = 12, Foreground = new SolidColorBrush(c.TextPri), TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 10) }); }
         if (!string.IsNullOrEmpty(item.Raw)) { dc.Children.Add(new TextBlock { Text = "● Package / 包名", FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = new SolidColorBrush(c.GreenLight), Margin = new Thickness(0, 0, 0, 4) }); dc.Children.Add(new TextBlock { Text = item.Raw, FontSize = 10, FontFamily = new FontFamily("Consolas"), Foreground = new SolidColorBrush(c.TextSec), TextWrapping = TextWrapping.Wrap, Background = new SolidColorBrush(Color.FromArgb(12, c.TextPri.R, c.TextPri.G, c.TextPri.B)), Padding = new Thickness(12, 10, 12, 10) }); }
         detail.Child = dc; outer.Children.Add(detail); card.Child = outer;
-        card.MouseEnter += (_, _) => { card.Background = new SolidColorBrush(Color.FromRgb(245, 243, 238)); card.BorderBrush = new SolidColorBrush(c.GreenLight); };
+        var hoverBg = _themeService.IsDarkMode
+            ? Color.FromRgb(42, 42, 45)
+            : Color.FromRgb(245, 243, 238);
+        card.MouseEnter += (_, _) => { card.Background = new SolidColorBrush(hoverBg); card.BorderBrush = new SolidColorBrush(c.GreenLight); };
         card.MouseLeave += (_, _) => { card.Background = new SolidColorBrush(c.CardBg); card.BorderBrush = new SolidColorBrush(c.CardBorder); };
         card.MouseLeftButtonDown += (_, _) => { var o = detail.Height != 0; detail.Height = o ? 0 : double.NaN; detail.Opacity = o ? 0 : 1; arrow.Text = o ? "▾" : "▴"; };
         return card;
@@ -160,7 +175,7 @@ public partial class MainWindow : Window
 
     private Border CreateEmptyCard(string text)
     {
-        var c = _themeService.IsDarkMode ? AppColors.Dark : AppColors.Light;
+        var c = ThemeColors;
         return new Border { Style = FindResource("CardStyle") as Style, Padding = new Thickness(30), Child = new TextBlock { Text = text, FontSize = 13, Foreground = new SolidColorBrush(c.TextDim), HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center } };
     }
 }

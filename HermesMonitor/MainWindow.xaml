@@ -5,7 +5,6 @@
         Height="740" Width="1100"
         MinHeight="520" MinWidth="800"
         WindowStyle="None"
-        Background="#FFF5F2EB"
         WindowStartupLocation="CenterScreen"
         MouseLeftButtonDown="Window_MouseLeftButtonDown">
     <Window.Resources>
@@ -26,32 +25,32 @@
         <Color x:Key="CardBorder">#FFE6E0D4</Color>
         <Color x:Key="Shadow">#1A000000</Color>
 
-        <SolidColorBrush x:Key="BgBrush" Color="{StaticResource Bg}"/>
-        <SolidColorBrush x:Key="BgDarkBrush" Color="{StaticResource BgDark}"/>
-        <SolidColorBrush x:Key="GreenBrush" Color="{StaticResource Green}"/>
-        <SolidColorBrush x:Key="GreenLightBrush" Color="{StaticResource GreenLight}"/>
-        <SolidColorBrush x:Key="GreenDarkBrush" Color="{StaticResource GreenDark}"/>
-        <SolidColorBrush x:Key="GreenBgBrush" Color="{StaticResource GreenBg}"/>
-        <SolidColorBrush x:Key="GreenBgLightBrush" Color="{StaticResource GreenBgLight}"/>
-        <SolidColorBrush x:Key="OrangeBrush" Color="{StaticResource Orange}"/>
-        <SolidColorBrush x:Key="OrangeLightBrush" Color="{StaticResource OrangeLight}"/>
-        <SolidColorBrush x:Key="OrangeBgBrush" Color="{StaticResource OrangeBg}"/>
-        <SolidColorBrush x:Key="TextPriBrush" Color="{StaticResource TextPri}"/>
-        <SolidColorBrush x:Key="TextSecBrush" Color="{StaticResource TextSec}"/>
-        <SolidColorBrush x:Key="TextDimBrush" Color="{StaticResource TextDim}"/>
-        <SolidColorBrush x:Key="CardBgBrush" Color="{StaticResource CardBg}"/>
-        <SolidColorBrush x:Key="CardBorderBrush" Color="{StaticResource CardBorder}"/>
+        <SolidColorBrush x:Key="BgBrush" Color="{DynamicResource Bg}"/>
+        <SolidColorBrush x:Key="BgDarkBrush" Color="{DynamicResource BgDark}"/>
+        <SolidColorBrush x:Key="GreenBrush" Color="{DynamicResource Green}"/>
+        <SolidColorBrush x:Key="GreenLightBrush" Color="{DynamicResource GreenLight}"/>
+        <SolidColorBrush x:Key="GreenDarkBrush" Color="{DynamicResource GreenDark}"/>
+        <SolidColorBrush x:Key="GreenBgBrush" Color="{DynamicResource GreenBg}"/>
+        <SolidColorBrush x:Key="GreenBgLightBrush" Color="{DynamicResource GreenBgLight}"/>
+        <SolidColorBrush x:Key="OrangeBrush" Color="{DynamicResource Orange}"/>
+        <SolidColorBrush x:Key="OrangeLightBrush" Color="{DynamicResource OrangeLight}"/>
+        <SolidColorBrush x:Key="OrangeBgBrush" Color="{DynamicResource OrangeBg}"/>
+        <SolidColorBrush x:Key="TextPriBrush" Color="{DynamicResource TextPri}"/>
+        <SolidColorBrush x:Key="TextSecBrush" Color="{DynamicResource TextSec}"/>
+        <SolidColorBrush x:Key="TextDimBrush" Color="{DynamicResource TextDim}"/>
+        <SolidColorBrush x:Key="CardBgBrush" Color="{DynamicResource CardBg}"/>
+        <SolidColorBrush x:Key="CardBorderBrush" Color="{DynamicResource CardBorder}"/>
 
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource CardBgBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource CardBgBrush}"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
             <Setter Property="Padding" Value="16,14"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource CardBorderBrush}"/>
         </Style>
     </Window.Resources>
-    <Border CornerRadius="0" Background="{StaticResource BgBrush}">
+    <Border x:Name="RootBorder" CornerRadius="0" Background="{DynamicResource BgBrush}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="52"/>
@@ -62,64 +61,64 @@
                 <RowDefinition Height="36"/>
             </Grid.RowDefinitions>
             <!-- Title Bar -->
-            <Border Grid.Row="0" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="24,0,20,0">
+            <Border Grid.Row="0" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,0,0,1" Padding="24,0,20,0" Background="{DynamicResource BgBrush}">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="{StaticResource GreenBrush}" CornerRadius="3" Width="28" Height="28">
+                        <Border x:Name="LogoGreen" Background="{DynamicResource GreenBrush}" CornerRadius="3" Width="28" Height="28">
                             <TextBlock Text="H" FontWeight="700" Foreground="#FFF5F2EB" FontSize="15" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="  Hermes Monitor" FontSize="17" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}" Margin="10,0,0,0"/>
+                        <TextBlock Text="  Hermes Monitor" FontSize="17" FontWeight="500" VerticalAlignment="Center" Foreground="{DynamicResource TextPriBrush}" Margin="10,0,0,0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <Border Name="ThemeBtn" CornerRadius="4" Width="28" Height="28" Cursor="Hand" Margin="0,0,8,0" MouseLeftButtonDown="ThemeToggle_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave" Background="Transparent">
                             <TextBlock Name="ThemeIcon" Text="🌙" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Name="ExportBtn" Text="📥" FontSize="16" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Export_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
-                        <TextBlock Name="RefreshBtn" Text="↻" FontSize="18" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Refresh_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
-                        <TextBlock Name="CloseBtn" Text="✕" FontSize="16" Foreground="{StaticResource TextSecBrush}" Cursor="Hand" MouseLeftButtonDown="Close_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <TextBlock Name="ExportBtn" Text="📥" FontSize="16" Foreground="{DynamicResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Export_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <TextBlock Name="RefreshBtn" Text="↻" FontSize="18" Foreground="{DynamicResource TextSecBrush}" Cursor="Hand" Margin="0,0,12,0" MouseLeftButtonDown="Refresh_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
+                        <TextBlock Name="CloseBtn" Text="✕" FontSize="16" Foreground="{DynamicResource TextSecBrush}" Cursor="Hand" MouseLeftButtonDown="Close_Click" MouseEnter="BtnEnter" MouseLeave="BtnLeave"/>
                     </StackPanel>
                 </Grid>
             </Border>
             <!-- Stats Bar -->
             <WrapPanel Grid.Row="1" Margin="24,10,24,6" Name="StatsPanel">
-                <Border CornerRadius="8" Padding="14,0" Height="34" Margin="0,0,10,0" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <Border CornerRadius="8" Padding="14,0" Height="34" Margin="0,0,10,0" Background="{DynamicResource CardBgBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="8" Height="8" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="MCP" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}"/>
-                        <Border Background="{StaticResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
-                            <TextBlock Name="StatMCP" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Ellipse Width="8" Height="8" Fill="{DynamicResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="MCP" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{DynamicResource TextPriBrush}"/>
+                        <Border Background="{DynamicResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
+                            <TextBlock Name="StatMCP" Text="0" FontSize="13" FontWeight="700" Foreground="{DynamicResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Border>
-                <Border CornerRadius="8" Padding="14,0" Height="34" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <Border CornerRadius="8" Padding="14,0" Height="34" Background="{DynamicResource CardBgBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="8" Height="8" Fill="{StaticResource GreenLightBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                        <TextBlock Text="Skills" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{StaticResource TextPriBrush}"/>
-                        <Border Background="{StaticResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
-                            <TextBlock Name="StatSkills" Text="0" FontSize="13" FontWeight="700" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Ellipse Width="8" Height="8" Fill="{DynamicResource GreenLightBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="Skills" FontSize="12" FontWeight="500" VerticalAlignment="Center" Foreground="{DynamicResource TextPriBrush}"/>
+                        <Border Background="{DynamicResource GreenBgBrush}" CornerRadius="6" Padding="8,1,8,1" Margin="8,0,0,0">
+                            <TextBlock Name="StatSkills" Text="0" FontSize="13" FontWeight="700" Foreground="{DynamicResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                     </StackPanel>
                 </Border>
-                <Border CornerRadius="8" Padding="14,0" Height="34" Background="{StaticResource CardBgBrush}" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+                <Border CornerRadius="8" Padding="14,0" Height="34" Background="{DynamicResource CardBgBrush}" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <TextBlock Text="🔍" FontSize="13" VerticalAlignment="Center" Margin="0,0,6,0"/>
                         <Border CornerRadius="4" Padding="6,0,6,0" Background="Transparent" Width="140">
-                            <TextBox Name="SearchBox" FontSize="12" Foreground="{StaticResource TextSecBrush}" BorderThickness="0" Background="Transparent" Text="" VerticalAlignment="Center" TextChanged="Search_TextChanged"/>
+                            <TextBox Name="SearchBox" FontSize="12" Foreground="{DynamicResource TextSecBrush}" BorderThickness="0" Background="Transparent" Text="" VerticalAlignment="Center" TextChanged="Search_TextChanged"/>
                         </Border>
                     </StackPanel>
                 </Border>
             </WrapPanel>
             <!-- Agent Framework Info Banner -->
-            <Border Grid.Row="2" Background="{StaticResource GreenBgBrush}" CornerRadius="8" Margin="24,0,24,6" Padding="12,6" BorderBrush="{StaticResource GreenLightBrush}" BorderThickness="1">
+            <Border Grid.Row="2" Background="{DynamicResource GreenBgBrush}" CornerRadius="8" Margin="24,0,24,6" Padding="12,6" BorderBrush="{DynamicResource GreenLightBrush}" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="🤖" FontSize="13" VerticalAlignment="Center"/>
-                    <TextBlock Name="AgentInfoText" Text="Supports Claude Code · Codex · Cursor · Windsurf · OpenCode · Gemini · Copilot + project-level MCP" FontSize="11" Foreground="{StaticResource GreenDarkBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    <TextBlock Name="AgentInfoText" Text="Supports Claude Code · Codex · Cursor · Windsurf · OpenCode · Gemini · Copilot + project-level MCP" FontSize="11" Foreground="{DynamicResource GreenDarkBrush}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
             <!-- Tabs -->
-            <Border Grid.Row="3" Background="{StaticResource CardBgBrush}" CornerRadius="10" Margin="24,0,24,8" Padding="4" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="1">
+            <Border Grid.Row="3" Background="{DynamicResource CardBgBrush}" CornerRadius="10" Margin="24,0,24,8" Padding="4" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="1">
                 <StackPanel Orientation="Horizontal">
-                    <Border Name="MCPTabBg" CornerRadius="8" Padding="22,0" Background="{StaticResource GreenBrush}" Height="36" Cursor="Hand" Margin="0,0,4,0" MouseLeftButtonDown="TabMCP_Click">
+                    <Border Name="MCPTabBg" CornerRadius="8" Padding="22,0" Background="{DynamicResource GreenBrush}" Height="36" Cursor="Hand" Margin="0,0,4,0" MouseLeftButtonDown="TabMCP_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="⚡" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Name="MCPTabText" Text="  MCP" FontSize="13" FontWeight="600" Foreground="White" Margin="0,0,6,0" VerticalAlignment="Center"/>
@@ -131,9 +130,9 @@
                     <Border Name="SkillsTabBg" CornerRadius="8" Padding="22,0" Background="Transparent" Height="36" Cursor="Hand" MouseLeftButtonDown="TabSkills_Click">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
                             <TextBlock Text="🧩" FontSize="14" VerticalAlignment="Center"/>
-                            <TextBlock Name="SkillsTabText" Text="  Skills" FontSize="13" FontWeight="500" Foreground="{StaticResource TextSecBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
-                            <Border Background="{StaticResource GreenBgLightBrush}" CornerRadius="6" Padding="6,1,6,1">
-                                <TextBlock Name="SkillsTabBadge" Text="0" FontSize="10" FontWeight="600" Foreground="{StaticResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <TextBlock Name="SkillsTabText" Text="  Skills" FontSize="13" FontWeight="500" Foreground="{DynamicResource TextSecBrush}" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                            <Border Background="{DynamicResource GreenBgLightBrush}" CornerRadius="6" Padding="6,1,6,1">
+                                <TextBlock Name="SkillsTabBadge" Text="0" FontSize="10" FontWeight="600" Foreground="{DynamicResource GreenDarkBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
                         </StackPanel>
                     </Border>
@@ -149,13 +148,13 @@
                 </ScrollViewer>
             </Grid>
             <!-- Status Bar -->
-            <Border Grid.Row="5" BorderBrush="{StaticResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,0,24,0">
+            <Border Grid.Row="5" BorderBrush="{DynamicResource CardBorderBrush}" BorderThickness="0,1,0,0" Padding="24,0,24,0" Background="{DynamicResource BgBrush}">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Name="LiveDot" Width="6" Height="6" Fill="{StaticResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7"/>
-                        <TextBlock Text="Live" FontSize="11" Foreground="{StaticResource TextDimBrush}" VerticalAlignment="Center"/>
+                        <Ellipse Name="LiveDot" Width="6" Height="6" Fill="{DynamicResource GreenBrush}" VerticalAlignment="Center" Margin="0,0,6,0" Opacity="0.7"/>
+                        <TextBlock Text="Live" FontSize="11" Foreground="{DynamicResource TextDimBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
-                    <TextBlock Name="LastUpdateText" Text="Just now" FontSize="11" Foreground="{StaticResource TextDimBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <TextBlock Name="LastUpdateText" Text="Just now" FontSize="11" Foreground="{DynamicResource TextDimBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </Grid>
