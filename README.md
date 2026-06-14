@@ -1,178 +1,160 @@
-# Hermes Monitor
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Sorareneeee/hermes-monitor/main/assets/logo-dark.svg">
+    <img alt="Hermes Monitor" src="https://raw.githubusercontent.com/Sorareneeee/hermes-monitor/main/assets/logo-light.svg" width="280">
+  </picture>
+</p>
 
-**AI Agent Ecosystem Monitor — Native Windows Desktop Application**
+<p align="center">
+  <em>A native desktop instrument panel for AI Agent infrastructure — real-time visibility into MCP servers and Skills across your entire agent ecosystem.</em>
+</p>
 
----
+<p align="center">
+  <a href="https://github.com/Sorareneeee/hermes-monitor/releases"><img src="https://img.shields.io/github/v/release/Sorareneeee/hermes-monitor?style=flat-square&label=Release&color=5B7B5E" alt="Release"></a>
+  <a href="https://github.com/Sorareneeee/hermes-monitor/releases"><img src="https://img.shields.io/github/downloads/Sorareneeee/hermes-monitor/total?style=flat-square&label=Downloads&color=5B7B5E" alt="Downloads"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-5B7B5E?style=flat-square" alt="License"></a>
+  <a href="https://dotnet.microsoft.com"><img src="https://img.shields.io/badge/.NET-10.0-7A9A7D?style=flat-square" alt=".NET 10"></a>
+  <a href="https://github.com/Sorareneeee/hermes-monitor/issues"><img src="https://img.shields.io/github/issues/Sorareneeee/hermes-monitor?style=flat-square&label=Issues&color=C9653B" alt="Issues"></a>
+</p>
 
-## 中文介绍
-
-Hermes Monitor 是一款基于 .NET 10 的 Windows 原生桌面应用，专为 AI Agent 生态系统的实时监控而设计。它能够自动发现并可视化展示你系统中所有正在运行的 MCP（Model Context Protocol）服务与已安装的 Agent 技能（Skills）。无论你使用的是 Claude Code、Codex、Cursor 还是 Windsurf，Hermes Monitor 都能自动扫描并呈现完整的工具链状态。
-
-### 核心特性
-
-| 特性 | 说明 |
-|------|------|
-| **自动发现** | 自动扫描系统进程和配置目录，无需手动配置即可发现所有 MCP 服务和 Agent 技能 |
-| **多 Agent 支持** | 兼容 Claude Code、Codex、Cursor、Windsurf、Copilot 等主流 AI Agent 框架 |
-| **实时监控** | 每 60 秒自动刷新，也可手动点击刷新按钮立即更新 |
-| **详情展开** | 点击任意卡片可展开查看用途说明、包名、运行时路径等技术细节 |
-| **一键复制** | 点击 📋 按钮即可复制原始包名，方便配置和集成 |
-| **自包含可执行文件** | 单文件发布，无需安装 .NET 运行时，双击即用 |
-| **现代复古设计** | 纸质米白背景搭配复古绿主色调，焦橙色点缀，营造「温暖科技」的高级感 |
-
-### 支持扫描的 Agent 目录
-
-- **Claude Code** — `~/.claude/`、`%APPDATA%/Claude/`、`%LOCALAPPDATA%/Claude/`
-- **Codex** — `~/.codex/`、`%APPDATA%/Codex/`、`%LOCALAPPDATA%/Codex/`
-- **Cursor** — `~/.cursor/`、`%APPDATA%/Cursor/`
-- **Windsurf** — `~/.windsurf/`
-- **Copilot** — `~/.copilot/`
-
-### 安装与使用
-
-```bash
-# 从 GitHub Releases 下载最新版本
-# 或从源码构建：
-
-git clone https://github.com/Sorareneeee/hermes-monitor.git
-cd hermes-monitor
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist
-```
-
-直接运行 `HermesMonitor.exe` 即可。程序会自动扫描系统，无需任何配置。
-
-### 操作说明
-
-| 操作 | 功能 |
-|------|------|
-| **↻** | 手动刷新数据 |
-| **✕** | 关闭窗口 |
-| **单击卡片** | 展开/收起详情 |
-| **📋** | 复制原始包名到剪贴板 |
-| **标签切换** | ⚡ MCP / 🧩 Skills 标签页切换 |
-
-### 技术栈
-
-- **框架**: .NET 10 WPF (Windows Presentation Foundation)
-- **语言**: C# 13
-- **UI**: XAML + 纯代码绘制
-- **进程扫描**: WMI (System.Management)
-- **发布**: 自包含单文件 (Self-contained single-file)
-
-### 配色方案
-
-Hermes Monitor 采用精心设计的「现代复古」配色——冷静的灰绿色为主调，温暖的焦橙色作为操作点缀，纸质米白背景降低视觉疲劳，营造专业而舒适的监控体验。
+<br>
 
 ---
 
-## English Description
+**Hermes Monitor** is a Windows-native desktop application that provides real-time observability into your AI agent's tooling infrastructure. It automatically discovers and monitors all active MCP (Model Context Protocol) servers and installed agent Skills across your development environment — supporting Claude Code, Codex, Cursor, Windsurf, and other major agent frameworks.
 
-Hermes Monitor is a native Windows desktop application built with .NET 10 WPF, designed for real-time monitoring of AI Agent ecosystems. It automatically discovers and visualizes all running MCP (Model Context Protocol) servers and installed Agent skills across your system. Whether you use Claude Code, Codex, Cursor, or Windsurf, Hermes Monitor scans and presents your complete toolchain status at a glance.
+Built with .NET 10 WPF, the application delivers a responsive, low-latency monitoring experience with zero external dependencies. Download the single-file executable and gain instant visibility into your agent ecosystem — no configuration required.
 
-### Key Features
+<br>
 
-| Feature | Description |
-|---------|-------------|
-| **Auto Discovery** | Automatically scans system processes and config directories — no manual setup required |
-| **Multi-Agent Support** | Compatible with Claude Code, Codex, Cursor, Windsurf, Copilot and other AI agent frameworks |
-| **Real-time Monitoring** | Auto-refreshes every 60 seconds; manual refresh available on demand |
-| **Expandable Details** | Click any card to reveal purpose descriptions, package names, runtime paths and technical details |
-| **One-Click Copy** | Copy raw package names with a single click for easy configuration and integration |
-| **Self-Contained Binary** | Single-file executable — no .NET runtime installation required, just double-click to run |
-| **Modern Vintage Design** | Paper-white background with sage green palette and warm clay orange accents |
+## Features
 
-### Scanned Agent Directories
+| Capability | Detail |
+|---|---|
+| **Automatic Discovery** | Scans running processes and agent configuration directories to enumerate every MCP server and Skill on your system — no manual setup |
+| **Cross-Framework Support** | Compatible with Claude Code, Codex, Cursor, Windsurf, Copilot, and any agent that stores configuration in standard locations |
+| **Live Monitoring** | Auto-refreshes every 60 seconds with manual refresh on demand. Hover states, click feedback, and smooth transitions throughout |
+| **Detail Expansion** | Click any card to reveal curated purpose descriptions (Chinese), raw package names, runtime paths, and technical metadata |
+| **Clipboard Integration** | One-click copy of raw package names for rapid configuration and toolchain integration |
+| **Self-Contained Binary** | Single-file executable (~80MB compressed). No .NET runtime, no dependencies — just download and run |
 
-- **Claude Code** — `~/.claude/`, `%APPDATA%/Claude/`, `%LOCALAPPDATA%/Claude/`
-- **Codex** — `~/.codex/`, `%APPDATA%/Codex/`, `%LOCALAPPDATA%/Codex/`
-- **Cursor** — `~/.cursor/`, `%APPDATA%/Cursor/`
-- **Windsurf** — `~/.windsurf/`
-- **Copilot** — `~/.copilot/`
-
-### Installation & Usage
+## Quick Start
 
 ```bash
-# Download the latest release from GitHub Releases
-# Or build from source:
+# Download the latest release
+# https://github.com/Sorareneeee/hermes-monitor/releases
 
+# Or build from source
 git clone https://github.com/Sorareneeee/hermes-monitor.git
-cd hermes-monitor
+cd hermes-monitor/HermesMonitor
 dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o dist
+
+# Run
+./dist/HermesMonitor.exe
 ```
 
-Simply run `HermesMonitor.exe`. The application will automatically scan your system — no configuration needed.
+## How It Works
+
+### Discovery Mechanism
+
+On launch, Hermes Monitor performs a comprehensive scan across your system:
+
+1. **Process Scanning** — Queries the Windows process table via WMI, identifying running `node` and `python` processes to detect active MCP server instances
+2. **Configuration Scanning** — Crawls standard agent configuration directories for `mcp.json`, `config.json`, and `settings.json` files
+3. **Skill Enumeration** — Reads installed agent skills from all discovered `skills/` directories
+
+### Supported Agent Paths
+
+| Agent | Configuration Location |
+|---|---|
+| **Claude Code** | `~/.claude/` · `%APPDATA%/Claude/` · `%LOCALAPPDATA%/Claude/` |
+| **Codex** | `~/.codex/` · `%APPDATA%/Codex/` · `%LOCALAPPDATA%/Codex/` |
+| **Cursor** | `~/.cursor/` · `%APPDATA%/Cursor/` |
+| **Windsurf** | `~/.windsurf/` |
+| **GitHub Copilot** | `~/.copilot/` |
+
+## Interface
 
 ### Controls
 
-| Action | Function |
-|--------|----------|
-| **↻** | Refresh data manually |
-| **✕** | Close window |
-| **Click card** | Expand/collapse details |
-| **📋** | Copy raw package name to clipboard |
-| **Tab switch** | Toggle between ⚡ MCP / 🧩 Skills tabs |
+| Interaction | Behavior |
+|---|---|
+| **↻** | Force refresh all data |
+| **✕** | Close application |
+| **Card click** | Expand / collapse detail section |
+| **📋** | Copy raw identifier to system clipboard |
+| **Tab bar** | Toggle between MCP and Skills views |
 
-### Tech Stack
+### Design System
 
-- **Framework**: .NET 10 WPF (Windows Presentation Foundation)
-- **Language**: C# 13
-- **UI**: XAML + Code-behind
-- **Process Scanning**: WMI (System.Management)
-- **Deployment**: Self-contained single-file executable
+The interface employs a considered visual language — a warm paper-white background (`#F5F2EB`) reduces visual fatigue during extended monitoring sessions, while sage green (`#5B7B5E`) anchors the primary actions and clay orange (`#C9653B`) draws attention to interactive elements. Card-based information architecture provides clear content hierarchy.
 
-### Color Palette
+## Architecture
 
 ```
-Background:      #F5F2EB  ·  Paper white / 纸质米白
-Primary Green:   #5B7B5E  ·  Sage green / 复古绿
-Light Green:     #7A9A7D  ·  Soft sage / 浅灰绿
-Dark Green:      #3D5B40  ·  Deep forest / 深墨绿
-Accent Orange:   #C9653B  ·  Warm clay / 焦橙
-Text Primary:    #2C2C2A  ·  Charcoal / 炭黑
-Text Secondary:  #6B6A66  ·  Warm grey / 暖灰
+hermes-monitor/
+├── HermesMonitor/
+│   ├── App.xaml              # Application entry point
+│   ├── MainWindow.xaml       # XAML layout definition
+│   ├── MainWindow.xaml.cs    # Core application logic
+│   └── HermesMonitor.csproj  # .NET 10 project configuration
+├── dist/                     # Published executable output
+└── README.md
 ```
 
-### Screenshots
+### Stack
 
-> *Screenshots coming soon. For now, build and run the application to experience the interface.*
+| Component | Technology |
+|---|---|
+| **Framework** | .NET 10 Windows Presentation Foundation (WPF) |
+| **Language** | C# 13 |
+| **Process Introspection** | System.Management (WMI) |
+| **Packaging** | Single-file self-contained deployment |
 
----
-
-## Building from Source
+## Building
 
 ```bash
-# Clone the repository
+# Prerequisites: .NET 10 SDK
+# https://dotnet.microsoft.com/download/dotnet/10.0
+
 git clone https://github.com/Sorareneeee/hermes-monitor.git
 cd hermes-monitor/HermesMonitor
 
-# Publish self-contained executable
-dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ../dist
+# Debug build
+dotnet build
 
-# The output HermesMonitor.exe will be in the dist/ directory
+# Release build (self-contained)
+dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o ../dist
 ```
 
-## Release Notes
+## Roadmap
 
-### v1.0.0 (2026-06-14)
+- [ ] Linux and macOS support (via .NET MAUI or Avalonia)
+- [ ] MCP server start/stop management
+- [ ] Historical usage statistics and charts
+- [ ] Dark mode toggle
+- [ ] Plugin system for custom data sources
 
-- Initial public release
-- Real-time MCP server auto-discovery via process scanning
-- Agent skill directory scanning across multiple frameworks
-- Expandable detail cards with curated descriptions
-- One-click package name copy
-- Vintage green/paper-white design system
-- Self-contained .NET 10 single-file executable (~135MB)
+## Contributing
 
----
+Contributions are welcome and appreciated. Please open an issue for discussion before submitting significant changes.
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT © 2026
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
 
 ---
 
-<div align="center">
-  <sub>Built with .NET 10 WPF · Designed for the AI Agent ecosystem</sub>
+<p align="center">
+  <sub>Built with .NET 10 WPF · Designed for the AI agent ecosystem</sub>
   <br>
-  <sub>基于 .NET 10 WPF 构建 · 专为 AI Agent 生态打造</sub>
-</div>
+  <a href="https://github.com/Sorareneeee/hermes-monitor/issues">Report Bug</a> ·
+  <a href="https://github.com/Sorareneeee/hermes-monitor/issues">Request Feature</a> ·
+  <a href="https://github.com/Sorareneeee/hermes-monitor/discussions">Discussions</a>
+</p>
